@@ -1,0 +1,27 @@
+[package]
+name = "protocol-derive"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc_macro = true
+
+[dependencies]
+async-trait = { version = "0.1.64", optional = true }
+syn = { version = "1.0.109", features = [ "proc-macro" ] }
+protocol-core = { path = "../protocol-core", optional = true }
+anyhow = "1.0.69"
+proc-macro2 = "1.0.51"
+quote = "1.0.23"
+cfg-if = "1.0.0"
+
+[features]
+sync = ["packet", "dep:protocol-core", "protocol-core?/rw-sync"]
+async-tokio = ["packet",  "dep:protocol-core", "protocol-core?/rw-async-tokio", "dep:async-trait" ]
+packet = []
+packet-read = ["packet",  "dep:protocol-core", "protocol-core?/readable"]
+packet-write = ["packet",  "dep:protocol-core", "protocol-core?/writeable"]
+
+

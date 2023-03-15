@@ -1,0 +1,25 @@
+[package]
+name = "protocol-packets"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+protocol-core = { path = "../protocol-core", features = [ "packet" ] }
+protocol-derive = { path = "../protocol-derive", features = [ "packet" ] }
+anyhow = "1.0.69"
+trust-dns-resolver = "0.22.0"
+integer-encoding = "3.0.4"
+bytes = "1.4.0"
+serde = { version = "1.0.155", features = [ "derive" ] }
+serde_json = "1.0.94"
+async-trait = { version = "0.1.66", optional = true }
+tokio = {version = "1.26.0", optional = true }
+
+[features]
+default = [ "read", "write", "sync" ]
+read = [ "protocol-core/readable", "protocol-derive/packet-read" ]
+write = [ "protocol-core/writeable", "protocol-derive/packet-write" ]
+sync = [ "protocol-core/rw-sync", "protocol-derive/sync" ]
+async-tokio = [ "protocol-core/rw-async-tokio", "protocol-derive/async-tokio", "dep:async-trait", "dep:tokio" ]
