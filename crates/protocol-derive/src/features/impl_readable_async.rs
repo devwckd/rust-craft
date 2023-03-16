@@ -1,7 +1,7 @@
 use quote::quote;
 use syn::PathArguments;
 
-pub fn impl_readable(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStream {
+pub fn impl_readable_async(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStream {
     if let syn::Data::Struct(s) = &derive_input.data {
         let mut result_token_stream = proc_macro2::TokenStream::new();
         let mut create_token_stream = proc_macro2::TokenStream::new();
@@ -17,11 +17,11 @@ pub fn impl_readable(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStrea
                     match &r#type.arguments {
                         PathArguments::AngleBracketed(args) => {
                             result_token_stream.extend_one(quote! {
-                                let #ident = #t_ident::#args::read(read).await?;
+                                let #ident = #t_ident::#args::read_async(read).await?;
                             })
                         }
                         _ => result_token_stream.extend_one(quote! {
-                            let #ident = #t_ident::read(read).await?;
+                            let #ident = #t_ident::read_async(read).await?;
                         }),
                     };
                     create_token_stream.extend_one(quote! { #ident, })
@@ -36,12 +36,12 @@ pub fn impl_readable(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStrea
 
         let tokens = quote! {
             #[async_trait::async_trait]
-            impl protocol_core::rw::Readable for #ident {
-                async fn read<T>(read: &mut T) -> anyhow::Result<Self>
+            impl protocol_core::rw::AsyncReadable for #ident {
+                async fn read_async<T>(read: &mut T) -> anyhow::Result<Self>
                 where
                     T: tokio::io::AsyncRead + std::marker::Unpin + Send + Sync
                 {
-                    use protocol_core::rw::Readable;
+                    use protocol_core::rw::AsyncReadable;
 
                     #result_token_stream
 

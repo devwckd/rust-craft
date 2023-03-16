@@ -18,10 +18,9 @@ quote = "1.0.23"
 cfg-if = "1.0.0"
 
 [features]
-sync = ["packet", "dep:protocol-core", "protocol-core?/rw-sync"]
-async-tokio = ["packet",  "dep:protocol-core", "protocol-core?/rw-async-tokio", "dep:async-trait" ]
-packet = []
-packet-read = ["packet",  "dep:protocol-core", "protocol-core?/readable"]
-packet-write = ["packet",  "dep:protocol-core", "protocol-core?/writeable"]
+sync = ["dep:protocol-core", "protocol-core?/sync"]
+async = ["dep:protocol-core", "protocol-core?/async", "dep:async-trait" ]
+read = ["dep:protocol-core", "protocol-core?/read"]
+write = ["dep:protocol-core", "protocol-core?/write"]
 
 

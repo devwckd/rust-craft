@@ -3,8 +3,6 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use crate::rw::{Readable, Writeable};
-
 pub struct Nbt<I> {
     inner: I,
 }
@@ -32,12 +30,12 @@ impl<I> DerefMut for Nbt<I> {
     }
 }
 
-#[cfg(all(feature = "rw-sync", not(feature = "rw-async-tokio")))]
-impl<I> Readable for Nbt<I>
+#[cfg(feature = "sync")]
+impl<I> crate::rw::SyncReadable for Nbt<I>
 where
     I: serde::de::DeserializeOwned,
 {
-    fn read<T>(read: &mut T) -> anyhow::Result<Self>
+    fn read_sync<T>(read: &mut T) -> anyhow::Result<Self>
     where
         T: std::io::Read,
     {
@@ -50,12 +48,12 @@ where
     }
 }
 
-#[cfg(all(feature = "rw-sync", not(feature = "rw-async-tokio")))]
-impl<I> Writeable for Nbt<I>
+#[cfg(feature = "sync")]
+impl<I> crate::rw::SyncWriteable for Nbt<I>
 where
     I: serde::Serialize,
 {
-    fn write<T>(&self, mut write: &mut T) -> anyhow::Result<()>
+    fn write_sync<T>(&self, mut write: &mut T) -> anyhow::Result<()>
     where
         T: std::io::Write,
     {
@@ -64,13 +62,13 @@ where
     }
 }
 
-#[cfg(all(feature = "rw-async-tokio", not(feature = "rw-sync")))]
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl<I> Readable for Nbt<I>
+impl<I> crate::rw::AsyncReadable for Nbt<I>
 where
     I: serde::de::DeserializeOwned,
 {
-    async fn read<T>(read: &mut T) -> anyhow::Result<Self>
+    async fn read_async<T>(read: &mut T) -> anyhow::Result<Self>
     where
         T: tokio::io::AsyncRead + std::marker::Unpin + Send + Sync,
     {
@@ -85,13 +83,13 @@ where
     }
 }
 
-#[cfg(all(feature = "rw-async-tokio", not(feature = "rw-sync")))]
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl<I> Writeable for Nbt<I>
+impl<I> crate::rw::AsyncWriteable for Nbt<I>
 where
     I: serde::Serialize + Send + Sync,
 {
-    async fn write<T>(&self, write: &mut T) -> anyhow::Result<()>
+    async fn write_async<T>(&self, write: &mut T) -> anyhow::Result<()>
     where
         T: tokio::io::AsyncWrite + std::marker::Unpin + Send + Sync,
     {

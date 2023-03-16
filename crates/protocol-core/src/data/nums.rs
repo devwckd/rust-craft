@@ -1,10 +1,8 @@
-use crate::rw::{Readable, Writeable};
-
-#[cfg(all(feature = "rw-sync", not(feature = "rw-async-tokio")))]
-macro_rules! impl_number {
+#[cfg(feature = "sync")]
+macro_rules! impl_number_sync {
     ($($type:ty),+) => {$(
-        impl Readable for $type {
-            fn read<T>(read: &mut T) -> anyhow::Result<Self>
+        impl crate::rw::SyncReadable for $type {
+            fn read_sync<T>(read: &mut T) -> anyhow::Result<Self>
             where
                 T: std::io::Read,
             {
@@ -15,8 +13,8 @@ macro_rules! impl_number {
             }
         }
 
-        impl Writeable for $type {
-            fn write<T>(&self, write: &mut T) -> anyhow::Result<()>
+        impl crate::rw::SyncWriteable for $type {
+            fn write_sync<T>(&self, write: &mut T) -> anyhow::Result<()>
             where
                 T: std::io::Write,
             {
@@ -27,15 +25,24 @@ macro_rules! impl_number {
     )*};
 }
 
-#[cfg(all(feature = "rw-async-tokio", not(feature = "rw-sync")))]
-macro_rules! impl_number {
+#[cfg(feature = "sync")]
+impl_number_sync! {
+    u8, i8,
+    u16, i16,
+    u32, i32,
+    u64, i64,
+    u128, i128
+}
+
+#[cfg(feature = "async")]
+macro_rules! impl_number_async {
     ($($type:ty),+) => {
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
         $(
             #[async_trait::async_trait]
-            impl Readable for $type {
-                async fn read<T>(read: &mut T) -> anyhow::Result<Self>
+            impl crate::rw::AsyncReadable for $type {
+                async fn read_async<T>(read: &mut T) -> anyhow::Result<Self>
                 where
                     T: tokio::io::AsyncRead + std::marker::Unpin + Send + Sync,
                 {
@@ -47,8 +54,8 @@ macro_rules! impl_number {
             }
 
             #[async_trait::async_trait]
-            impl Writeable for $type {
-                async fn write<T>(&self, write: &mut T) -> anyhow::Result<()>
+            impl crate::rw::AsyncWriteable for $type {
+                async fn write_async<T>(&self, write: &mut T) -> anyhow::Result<()>
                 where
                     T: tokio::io::AsyncWrite + std::marker::Unpin + Send + Sync,
                 {
@@ -60,7 +67,8 @@ macro_rules! impl_number {
     };
 }
 
-impl_number! {
+#[cfg(feature = "async")]
+impl_number_async! {
     u8, i8,
     u16, i16,
     u32, i32,

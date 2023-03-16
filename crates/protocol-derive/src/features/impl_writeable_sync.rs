@@ -1,6 +1,6 @@
 use quote::quote;
 
-pub fn impl_writeable(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStream {
+pub fn impl_writeable_sync(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStream {
     if let syn::Data::Struct(s) = &derive_input.data {
         let mut result_token_stream = proc_macro2::TokenStream::new();
         for field in &s.fields {
@@ -8,7 +8,7 @@ pub fn impl_writeable(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStre
                 syn::Type::Path(_) => {
                     let ident = &field.ident;
                     result_token_stream.extend_one(quote! {
-                        self.#ident.write(write)?;
+                        self.#ident.write_sync(write)?;
                     });
                 }
                 _ => {
@@ -20,12 +20,12 @@ pub fn impl_writeable(derive_input: &syn::DeriveInput) -> proc_macro2::TokenStre
         let ident = &derive_input.ident;
 
         let tokens = quote! {
-            impl protocol_core::rw::Writeable for #ident {
-                fn write<T>(&self, write: &mut T) -> anyhow::Result<()>
+            impl protocol_core::rw::SyncWriteable for #ident {
+                fn write_sync<T>(&self, write: &mut T) -> anyhow::Result<()>
                 where
                     T: std::io::Write
                 {
-                    use protocol_core::rw::Writeable;
+                    use protocol_core::rw::SyncWriteable;
 
                     #result_token_stream
 
