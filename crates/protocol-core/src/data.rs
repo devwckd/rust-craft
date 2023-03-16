@@ -1,6 +1,9 @@
 mod string;
 pub use string::*;
 
+mod nbt;
+pub use self::nbt::*;
+
 mod nums;
 pub use nums::*;
 
