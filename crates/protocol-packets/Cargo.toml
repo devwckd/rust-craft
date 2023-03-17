@@ -18,8 +18,8 @@ async-trait = { version = "0.1.66", optional = true }
 tokio = {version = "1.26.0", optional = true }
 
 [features]
-default = [ "read", "write", "async-tokio" ]
+default = [ "read", "write", "sync" ]
 read = [ "protocol-core/read", "protocol-derive/read" ]
 write = [ "protocol-core/write", "protocol-derive/write" ]
 sync = [ "protocol-core/sync", "protocol-derive/sync" ]
-async-tokio = [ "protocol-core/async", "protocol-derive/async", "dep:async-trait", "dep:tokio" ]
+async = [ "protocol-core/async", "protocol-derive/async", "dep:async-trait", "dep:tokio" ]
