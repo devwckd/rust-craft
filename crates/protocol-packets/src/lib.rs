@@ -1,5 +1,5 @@
-pub extern crate protocol_core;
-pub extern crate protocol_derive;
+pub use protocol_core;
+pub use protocol_derive;
 
 pub mod models;
 
