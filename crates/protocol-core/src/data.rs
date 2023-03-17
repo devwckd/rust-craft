@@ -1,3 +1,6 @@
+mod collections;
+pub use collections::*;
+
 mod string;
 pub use string::*;
 
