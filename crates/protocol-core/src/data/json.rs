@@ -3,8 +3,6 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use crate::rw::{Readable, Writeable};
-
 pub struct Json<I> {
     inner: I,
 }
@@ -38,64 +36,64 @@ impl<I> DerefMut for Json<I> {
     }
 }
 
-#[cfg(all(feature = "rw-sync", not(feature = "rw-async-tokio")))]
-impl<I> Readable for Json<I>
+#[cfg(feature = "sync")]
+impl<I> crate::rw::SyncReadable for Json<I>
 where
     I: serde::de::DeserializeOwned + serde::Serialize + Send + Sync,
 {
-    fn read<T>(mut read: &mut T) -> anyhow::Result<Self>
+    fn read_sync<T>(mut read: &mut T) -> anyhow::Result<Self>
     where
         T: std::io::Read,
     {
-        let raw = String::read(&mut read)?;
+        let raw = String::read_sync(&mut read)?;
         let deserialized = serde_json::from_str(&raw)?;
         Ok(Json::new(deserialized))
     }
 }
 
-#[cfg(all(feature = "rw-sync", not(feature = "rw-async-tokio")))]
-impl<I> Writeable for Json<I>
+#[cfg(feature = "sync")]
+impl<I> crate::rw::SyncWriteable for Json<I>
 where
     I: serde::de::DeserializeOwned + serde::Serialize + Send + Sync,
 {
-    fn write<T>(&self, mut write: &mut T) -> anyhow::Result<()>
+    fn write_sync<T>(&self, mut write: &mut T) -> anyhow::Result<()>
     where
         T: std::io::Write,
     {
         let raw = serde_json::to_string(&self.inner)?;
-        raw.write(&mut write)?;
+        raw.write_sync(&mut write)?;
         Ok(())
     }
 }
 
-#[cfg(all(feature = "rw-async-tokio", not(feature = "rw-sync")))]
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl<I> Readable for Json<I>
+impl<I> crate::rw::AsyncReadable for Json<I>
 where
     I: serde::de::DeserializeOwned + serde::Serialize + Send + Sync,
 {
-    async fn read<T>(mut read: &mut T) -> anyhow::Result<Self>
+    async fn read_async<T>(mut read: &mut T) -> anyhow::Result<Self>
     where
         T: tokio::io::AsyncRead + std::marker::Unpin + Send + Sync,
     {
-        let raw = String::read(&mut read).await?;
+        let raw = String::read_async(&mut read).await?;
         let deserialized = serde_json::from_str(&raw)?;
         Ok(Json::new(deserialized))
     }
 }
 
-#[cfg(all(feature = "rw-async-tokio", not(feature = "rw-sync")))]
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl<I> Writeable for Json<I>
+impl<I> crate::rw::AsyncWriteable for Json<I>
 where
     I: serde::de::DeserializeOwned + serde::Serialize + Send + Sync,
 {
-    async fn write<T>(&self, mut write: &mut T) -> anyhow::Result<()>
+    async fn write_async<T>(&self, mut write: &mut T) -> anyhow::Result<()>
     where
         T: tokio::io::AsyncWrite + std::marker::Unpin + Send + Sync,
     {
         let raw = serde_json::to_string(&self.inner)?;
-        raw.write(&mut write).await?;
+        raw.write_async(&mut write).await?;
         Ok(())
     }
 }

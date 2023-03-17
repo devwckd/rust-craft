@@ -1,7 +1,5 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::rw::{Readable, Writeable};
-
 pub struct VarLong {
     inner: i64,
 }
@@ -38,9 +36,9 @@ impl DerefMut for VarLong {
     }
 }
 
-#[cfg(all(feature = "rw-sync", not(feature = "rw-async-tokio")))]
-impl Readable for VarLong {
-    fn read<T>(mut read: &mut T) -> anyhow::Result<Self>
+#[cfg(feature = "sync")]
+impl crate::rw::SyncReadable for VarLong {
+    fn read_sync<T>(mut read: &mut T) -> anyhow::Result<Self>
     where
         T: std::io::Read,
     {
@@ -48,7 +46,7 @@ impl Readable for VarLong {
         let mut result = 0;
 
         loop {
-            let read = u8::read(&mut read)?;
+            let read = u8::read_sync(&mut read)?;
             let value = i64::from(read & 0b0111_1111);
             result |= value.overflowing_shl(7 * num_read).0;
 
@@ -66,9 +64,9 @@ impl Readable for VarLong {
     }
 }
 
-#[cfg(all(feature = "rw-sync", not(feature = "rw-async-tokio")))]
-impl Writeable for VarLong {
-    fn write<T>(&self, mut write: &mut T) -> anyhow::Result<()>
+#[cfg(feature = "sync")]
+impl crate::rw::SyncWriteable for VarLong {
+    fn write_sync<T>(&self, mut write: &mut T) -> anyhow::Result<()>
     where
         T: std::io::Write,
     {
@@ -80,7 +78,7 @@ impl Writeable for VarLong {
                 temp |= 0b1000_0000;
             }
 
-            temp.write(&mut write)?;
+            temp.write_sync(&mut write)?;
 
             if x == 0 {
                 break;
@@ -91,10 +89,10 @@ impl Writeable for VarLong {
     }
 }
 
-#[cfg(all(feature = "rw-async-tokio", not(feature = "rw-sync")))]
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl Readable for VarLong {
-    async fn read<T>(mut read: &mut T) -> anyhow::Result<Self>
+impl crate::rw::AsyncReadable for VarLong {
+    async fn read_async<T>(mut read: &mut T) -> anyhow::Result<Self>
     where
         T: tokio::io::AsyncRead + std::marker::Unpin + Send + Sync,
     {
@@ -102,7 +100,7 @@ impl Readable for VarLong {
         let mut result = 0;
 
         loop {
-            let read = u8::read(&mut read).await?;
+            let read = u8::read_async(&mut read).await?;
             let value = i64::from(read & 0b0111_1111);
             result |= value.overflowing_shl(7 * num_read).0;
 
@@ -120,10 +118,10 @@ impl Readable for VarLong {
     }
 }
 
-#[cfg(all(feature = "rw-async-tokio", not(feature = "rw-sync")))]
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl Writeable for VarLong {
-    async fn write<T>(&self, mut write: &mut T) -> anyhow::Result<()>
+impl crate::rw::AsyncWriteable for VarLong {
+    async fn write_async<T>(&self, mut write: &mut T) -> anyhow::Result<()>
     where
         T: tokio::io::AsyncWrite + std::marker::Unpin + Send + Sync,
     {
@@ -135,7 +133,7 @@ impl Writeable for VarLong {
                 temp |= 0b1000_0000;
             }
 
-            temp.write(&mut write).await?;
+            temp.write_async(&mut write).await?;
 
             if x == 0 {
                 break;

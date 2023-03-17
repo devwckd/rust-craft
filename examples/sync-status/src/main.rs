@@ -8,7 +8,7 @@ use protocol_packets::{
     protocol_core::{
         data::VarInt,
         packet::Packet,
-        rw::{Readable, Writeable},
+        rw::{SyncReadable, SyncWriteable},
     },
     serverbound::{handshaking::Handshake, status::StatusRequest},
 };
@@ -44,26 +44,28 @@ fn main() {
 
 fn write_packet<P, W>(packet: P, mut write: &mut W)
 where
-    P: Packet + Writeable,
+    P: Packet + SyncWriteable,
     W: Write,
 {
     let mut buf = Vec::<u8>::new();
-    VarInt::new(P::ID as i32).write(&mut buf).unwrap();
-    packet.write(&mut buf).unwrap();
+    VarInt::new(P::ID as i32).write_sync(&mut buf).unwrap();
+    packet.write_sync(&mut buf).unwrap();
 
-    VarInt::new(buf.len() as i32).write(&mut write).unwrap();
+    VarInt::new(buf.len() as i32)
+        .write_sync(&mut write)
+        .unwrap();
     write.write_all(&mut buf).unwrap();
 }
 
 fn read_packet<P, R>(mut read: &mut R) -> P
 where
-    P: Packet + Readable,
+    P: Packet + SyncReadable,
     R: Read,
 {
-    let size = *VarInt::read(&mut read).unwrap();
+    let size = *VarInt::read_sync(&mut read).unwrap();
     let mut buf = vec![0u8; size as usize];
     read.read_exact(&mut buf).unwrap();
     let mut buf = &buf[..];
-    let _ = VarInt::read(&mut buf).unwrap();
-    return P::read(&mut buf).unwrap();
+    let _ = VarInt::read_sync(&mut buf).unwrap();
+    return P::read_sync(&mut buf).unwrap();
 }

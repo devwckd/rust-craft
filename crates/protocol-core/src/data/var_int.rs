@@ -1,7 +1,5 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::rw::{Readable, Writeable};
-
 pub struct VarInt {
     inner: i32,
 }
@@ -38,9 +36,9 @@ impl DerefMut for VarInt {
     }
 }
 
-#[cfg(all(feature = "rw-sync", not(feature = "rw-async-tokio")))]
-impl Readable for VarInt {
-    fn read<T>(mut read: &mut T) -> anyhow::Result<Self>
+#[cfg(feature = "sync")]
+impl crate::rw::SyncReadable for VarInt {
+    fn read_sync<T>(mut read: &mut T) -> anyhow::Result<Self>
     where
         T: std::io::Read,
     {
@@ -48,7 +46,7 @@ impl Readable for VarInt {
         let mut result = 0;
 
         loop {
-            let read = u8::read(&mut read)?;
+            let read = u8::read_sync(&mut read)?;
             let value = i32::from(read & 0b0111_1111);
             result |= value.overflowing_shl(7 * num_read).0;
 
@@ -66,9 +64,9 @@ impl Readable for VarInt {
     }
 }
 
-#[cfg(all(feature = "rw-sync", not(feature = "rw-async-tokio")))]
-impl Writeable for VarInt {
-    fn write<T>(&self, mut write: &mut T) -> anyhow::Result<()>
+#[cfg(feature = "sync")]
+impl crate::rw::SyncWriteable for VarInt {
+    fn write_sync<T>(&self, mut write: &mut T) -> anyhow::Result<()>
     where
         T: std::io::Write,
     {
@@ -80,7 +78,7 @@ impl Writeable for VarInt {
                 temp |= 0b1000_0000;
             }
 
-            temp.write(&mut write)?;
+            temp.write_sync(&mut write)?;
 
             if x == 0 {
                 break;
@@ -90,10 +88,10 @@ impl Writeable for VarInt {
     }
 }
 
-#[cfg(all(feature = "rw-async-tokio", not(feature = "rw-sync")))]
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl Readable for VarInt {
-    async fn read<T>(mut read: &mut T) -> anyhow::Result<Self>
+impl crate::rw::AsyncReadable for VarInt {
+    async fn read_async<T>(mut read: &mut T) -> anyhow::Result<Self>
     where
         T: tokio::io::AsyncRead + std::marker::Unpin + Send + Sync,
     {
@@ -101,7 +99,7 @@ impl Readable for VarInt {
         let mut result = 0;
 
         loop {
-            let read = u8::read(&mut read).await?;
+            let read = u8::read_async(&mut read).await?;
             let value = i32::from(read & 0b0111_1111);
             result |= value.overflowing_shl(7 * num_read).0;
 
@@ -119,10 +117,10 @@ impl Readable for VarInt {
     }
 }
 
-#[cfg(all(feature = "rw-async-tokio", not(feature = "rw-sync")))]
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl Writeable for VarInt {
-    async fn write<T>(&self, mut write: &mut T) -> anyhow::Result<()>
+impl crate::rw::AsyncWriteable for VarInt {
+    async fn write_async<T>(&self, mut write: &mut T) -> anyhow::Result<()>
     where
         T: tokio::io::AsyncWrite + std::marker::Unpin + Send + Sync,
     {
@@ -134,7 +132,7 @@ impl Writeable for VarInt {
                 temp |= 0b1000_0000;
             }
 
-            temp.write(&mut write).await?;
+            temp.write_async(&mut write).await?;
 
             if x == 0 {
                 break;
