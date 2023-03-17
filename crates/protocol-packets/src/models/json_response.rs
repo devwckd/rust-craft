@@ -1,5 +1,6 @@
 use protocol_core::data::Json;
-use serde_json::Value;
+
+use super::chat::Chat;
 
 pub type JsonResponse = Json<JsonResponseContent>;
 
@@ -7,7 +8,7 @@ pub type JsonResponse = Json<JsonResponseContent>;
 pub struct JsonResponseContent {
     pub version: Version,
     pub players: Players,
-    pub description: Value,
+    pub description: Chat,
     #[serde(rename = "enforcesSecureChat")]
     pub enforces_secure_chat: bool,
     #[serde(rename = "previewsChat")]
