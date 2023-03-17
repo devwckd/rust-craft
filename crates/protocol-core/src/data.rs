@@ -10,6 +10,9 @@ pub use self::nbt::*;
 mod nums;
 pub use nums::*;
 
+mod option;
+pub use option::*;
+
 mod var_int;
 pub use var_int::*;
 
