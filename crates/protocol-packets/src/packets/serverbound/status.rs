@@ -1,10 +1,10 @@
-use protocol_derive::Packet;
+use protocol_derive::{Packet, Readable, Writeable};
 
-#[derive(Packet)]
+#[derive(Packet, Readable, Writeable)]
 #[packet_id = 0x00]
 pub struct StatusRequest {}
 
-#[derive(Packet)]
+#[derive(Packet, Readable, Writeable)]
 #[packet_id = 0x01]
 pub struct PingRequest {
     pub payload: i64,

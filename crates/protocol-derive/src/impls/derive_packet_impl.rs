@@ -3,13 +3,5 @@ pub fn derive_packet_impl(token_stream: proc_macro::TokenStream) -> proc_macro::
     let mut result_token_stream = proc_macro2::TokenStream::new();
 
     result_token_stream.extend_one(crate::features::impl_packet(&derive_input));
-    if cfg!(feature = "write") {
-        result_token_stream.extend_one(crate::features::impl_writeable(&derive_input));
-    }
-
-    if cfg!(feature = "read") {
-        result_token_stream.extend_one(crate::features::impl_readable(&derive_input));
-    }
-
     result_token_stream.into()
 }
