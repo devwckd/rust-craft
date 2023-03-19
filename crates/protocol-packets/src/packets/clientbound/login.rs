@@ -1,7 +1,8 @@
 use protocol_core::data::Json;
 use protocol_derive::{Packet, Readable, Writeable};
+use uuid::Uuid;
 
-use crate::models::chat::Chat;
+use crate::models::{chat::Chat, property::Property};
 
 #[derive(Packet, Readable, Writeable)]
 #[packet_id = 0x00]
@@ -19,4 +20,8 @@ pub struct EncryptionRequest {
 
 #[derive(Packet, Readable, Writeable)]
 #[packet_id = 0x02]
-pub struct LoginSuccess {}
+pub struct LoginSuccess {
+    pub uuid: Uuid,
+    pub username: String,
+    pub properties: Vec<Property>,
+}

@@ -461,6 +461,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "trust-dns-resolver",
+ "uuid",
 ]
 
 [[package]]
