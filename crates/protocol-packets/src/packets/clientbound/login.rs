@@ -1,4 +1,4 @@
-use protocol_core::data::Json;
+use protocol_core::data::{Json, VarInt};
 use protocol_derive::{Packet, Readable, Writeable};
 use uuid::Uuid;
 
@@ -24,4 +24,10 @@ pub struct LoginSuccess {
     pub uuid: Uuid,
     pub username: String,
     pub properties: Vec<Property>,
+}
+
+#[derive(Packet, Readable, Writeable)]
+#[packet_id = 0x03]
+pub struct SetCompression {
+    pub threshold: VarInt,
 }
