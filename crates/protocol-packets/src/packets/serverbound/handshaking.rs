@@ -1,8 +1,7 @@
 use protocol_core::data::VarInt;
-use protocol_derive::Packet;
+use protocol_derive::{Packet, Readable, Writeable};
 
-///
-#[derive(Packet)]
+#[derive(Packet, Readable, Writeable)]
 #[packet_id = 0x00]
 pub struct Handshake {
     pub protocol_version: VarInt,
