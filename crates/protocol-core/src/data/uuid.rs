@@ -1,8 +1,7 @@
 use uuid::Uuid;
 
-use crate::rw::{AsyncReadable, AsyncWriteable, SyncReadable, SyncWriteable};
-
-impl SyncReadable for Uuid {
+#[cfg(feature = "sync")]
+impl crate::rw::SyncReadable for Uuid {
     fn read_sync<T>(mut read: &mut T) -> anyhow::Result<Self>
     where
         T: std::io::Read,
@@ -14,7 +13,8 @@ impl SyncReadable for Uuid {
     }
 }
 
-impl SyncWriteable for Uuid {
+#[cfg(feature = "sync")]
+impl crate::rw::SyncWriteable for Uuid {
     fn write_sync<T>(&self, mut write: &mut T) -> anyhow::Result<()>
     where
         T: std::io::Write,
@@ -26,8 +26,9 @@ impl SyncWriteable for Uuid {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncReadable for Uuid {
+impl crate::rw::AsyncReadable for Uuid {
     async fn read_async<T>(mut read: &mut T) -> anyhow::Result<Self>
     where
         T: tokio::io::AsyncRead + std::marker::Unpin + Send + Sync,
@@ -39,8 +40,9 @@ impl AsyncReadable for Uuid {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait::async_trait]
-impl AsyncWriteable for Uuid {
+impl crate::rw::AsyncWriteable for Uuid {
     async fn write_async<T>(&self, mut write: &mut T) -> anyhow::Result<()>
     where
         T: tokio::io::AsyncWrite + std::marker::Unpin + Send + Sync,
