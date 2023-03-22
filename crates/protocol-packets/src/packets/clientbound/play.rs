@@ -56,3 +56,9 @@ pub struct EntityAnimation {
 pub struct AwardStatistics {
     pub statistics: Vec<Statistic>,
 }
+
+#[derive(Packet, Readable, Writeable)]
+#[packet_id = 0x04]
+pub struct AcknowledgeBlockChange {
+    pub sequence_id: VarInt,
+}
