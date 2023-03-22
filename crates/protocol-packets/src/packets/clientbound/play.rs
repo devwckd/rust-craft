@@ -41,3 +41,10 @@ pub struct SpawnPlayer {
     pub pitch: u8,
     pub yaw: u8,
 }
+
+#[derive(Packet, Readable, Writeable)]
+#[packet_id = 0x03]
+pub struct EntityAnimation {
+    pub entity_id: VarInt,
+    pub animation: u8,
+}
