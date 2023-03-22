@@ -11,7 +11,7 @@ There's no better way of learning proc-macros and feature-flags by implementing 
 | Name  | Description |
 | - | - |
 | protocol-core  | Packet related abstraction traits and implementations for common types |
-| protocol-derive  | Proc-macros responsible for implementing Readable, Writeable and Packet traits for structs automatically via `#[derive(Packet)]` |
+| protocol-derive  | Proc-macros responsible for implementing Readable, Writeable and Packet traits for structs automatically via `#[derive(Packet, Readable, Writeable)]` |
 | protocol-packets | Packet structs and documentation |
 
 ### Examples
@@ -26,7 +26,7 @@ Not in order.
 - [ ] Login packet definitions. (protocol-packets)
 - [ ] Play packet definitions. (protocol-packets)
 - [ ] Connection wrapper that stores data (state, compression) and send/receive packets. (protocol-packets)
-- [ ] Nbt type (like Json). (protocol-core)
+- [x] Nbt type (like Json). (protocol-core)
 - [ ] ChatComponent type. (protocol-packets)
 
 ### Inspiration
