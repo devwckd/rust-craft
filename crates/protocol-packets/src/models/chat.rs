@@ -3,7 +3,7 @@ use serde_json::Value;
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Chat {
-    pub text: String,
+    pub text: Option<String>,
     #[serde(default = "bool::default")]
     pub bold: bool,
     #[serde(default = "bool::default")]
