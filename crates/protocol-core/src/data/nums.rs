@@ -1,3 +1,5 @@
+use core::f32;
+
 #[cfg(feature = "sync")]
 macro_rules! impl_number_sync {
     ($($type:ty),+) => {$(
@@ -6,7 +8,7 @@ macro_rules! impl_number_sync {
             where
                 T: std::io::Read,
             {
-                let mut buf = [0u8; (<$type>::BITS / 8) as usize];
+                let mut buf = [0u8; std::mem::size_of::<$type>()];
                 read.read_exact(&mut buf)?;
 
                 Ok(<$type>::from_be_bytes(buf))
@@ -31,7 +33,8 @@ impl_number_sync! {
     u16, i16,
     u32, i32,
     u64, i64,
-    u128, i128
+    u128, i128,
+    f32, f64
 }
 
 #[cfg(feature = "async")]
@@ -46,7 +49,7 @@ macro_rules! impl_number_async {
                 where
                     T: tokio::io::AsyncRead + std::marker::Unpin + Send + Sync,
                 {
-                    let mut buf = [0u8; (<$type>::BITS / 8) as usize];
+                    let mut buf = [0u8; std::mem::size_of::<$type>()];
                     read.read_exact(&mut buf).await?;
 
                     Ok(<$type>::from_be_bytes(buf))
@@ -66,12 +69,12 @@ macro_rules! impl_number_async {
         )*
     };
 }
-
 #[cfg(feature = "async")]
 impl_number_async! {
     u8, i8,
     u16, i16,
     u32, i32,
     u64, i64,
-    u128, i128
+    u128, i128,
+    f32, f64
 }
