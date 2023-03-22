@@ -2,6 +2,8 @@ use protocol_core::data::VarInt;
 use protocol_derive::{Packet, Readable, Writeable};
 use uuid::Uuid;
 
+use crate::models::statistic::Statistic;
+
 #[derive(Packet, Readable, Writeable)]
 #[packet_id = 0x00]
 pub struct SpawnEntity {
@@ -47,4 +49,10 @@ pub struct SpawnPlayer {
 pub struct EntityAnimation {
     pub entity_id: VarInt,
     pub animation: u8,
+}
+
+#[derive(Packet, Readable, Writeable)]
+#[packet_id = 0x04]
+pub struct AwardStatistics {
+    pub statistics: Vec<Statistic>,
 }
